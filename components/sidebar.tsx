@@ -13,12 +13,14 @@ interface SidebarProps {
   items: {
     label: string
     href: string
+    section:string
   }[]
   isOrdering?: boolean
   onDragEnd?: (result: any) => void
+  onClickOption: (result:string) => void
 }
 
-export default function Sidebar({ activeSection, items, isOrdering = false, onDragEnd }: SidebarProps) {
+export default function Sidebar({ activeSection, items, isOrdering = false, onDragEnd,onClickOption}: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarItems, setSidebarItems] = useState(items)
@@ -170,6 +172,7 @@ export default function Sidebar({ activeSection, items, isOrdering = false, onDr
               onDragOver={isOrdering ? handleDragOver : undefined}
               onDrop={isOrdering ? (e) => handleDrop(e, index) : undefined}
               className={`${isOrdering ? "cursor-move relative" : ""}`}
+              onClick={!isOrdering  && item.href === "#"? () => onClickOption(item.section) : undefined}
             >
               {isOrdering && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#3e6b47] dark:bg-[#4e8c57]"></div>}
               <Link
