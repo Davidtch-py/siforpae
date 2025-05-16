@@ -42,20 +42,20 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#f8f5e6] relative">
-      {/* Imagen izquierda - solo visible en desktop */}
-      <div className="hidden md:block absolute left-4 bottom-4">
-        <Image src="/vegetables.svg" alt="Vegetables" width={200} height={100} className="object-contain" />
-      </div>
+    <div className="flex min-h-screen bg-[#f8f5e6]">
+      {/* Contenedor principal con posicionamiento relativo */}
+      <div className="flex flex-col items-center justify-center w-full relative">
+        {/* Imagen izquierda - solo visible en desktop */}
+        <div className="hidden md:block absolute left-[5%] bottom-[1rem] translate-y-0">
+          <Image src="/vegetables.svg" alt="Vegetables" width={390} height={100} className="object-contain" />
+        </div>
 
-      {/* Imagen derecha - solo visible en desktop */}
-      <div className="hidden md:block absolute right-4 bottom-4">
-        <Image src="/character.svg" alt="Character" width={200} height={200} className="object-contain" />
-      </div>
+        {/* Imagen derecha - solo visible en desktop */}
+        <div className="hidden md:block absolute right-[5%] bottom-[1rem] translate-y-0">
+          <Image src="/character.svg" alt="Character" width={220} height={180} className="object-contain" />
+        </div>
 
-      {/* Contenedor principal */}
-      <div className="flex flex-col items-center justify-center w-full">
-        <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+        <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md z-10">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-[#3e6b47]">SIFORPAE</h1>
             <h2 className="text-xl font-medium text-[#4a4a4a]">Tunja</h2>
@@ -164,8 +164,8 @@ export default function LoginPage() {
         </div>
 
         {/* Imagen de verduras - visible en mobile */}
-        <div className="md:hidden mt-8">
-          <Image src="/vegetables.svg" alt="Vegetables" width={200} height={100} className="object-contain" />
+        <div className="md:hidden mt-4">
+          <Image src="/vegetables.svg" alt="Vegetables" width={290} height={75} className="object-contain" />
         </div>
       </div>
     </div>
