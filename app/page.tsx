@@ -22,6 +22,7 @@ export default function LoginPage() {
     // En una aplicación real, esto se conectaría a un backend
     if (username === "admin" && password === "admin") {
       // Redirigir al dashboard de administrador
+      localStorage.setItem('isAdmin', 'true');
       router.push("/admin/dashboard")
     } else {
       // Redirigir al dashboard de usuario normal

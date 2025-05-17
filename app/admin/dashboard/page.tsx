@@ -39,6 +39,9 @@ export default function AdminDashboard() {
       position: "right" as const,
     },
   ]
+  const handleLogOut=()=>{
+    localStorage.removeItem('isAdmin');
+  }
 
   // Use the tour hook
   const { isTourOpen, startTour, closeTour, completeTour } = useTour("admin-dashboard", tourSteps)
@@ -133,7 +136,7 @@ export default function AdminDashboard() {
               <Link
                 href="/"
                 className="block p-2 hover:bg-[#d8d5c5] dark:hover:bg-gray-700 rounded-md text-[#c9a55a] dark:text-[#d9b56a]"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {setMobileMenuOpen(false); handleLogOut()}}
               >
                 Cerrar Sesión
               </Link>
