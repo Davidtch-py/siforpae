@@ -5,7 +5,7 @@ export default function MenusPage() {
   const sidebarItems = [
     {
       label: "Consultar Menus",
-      href: "/menus/consultar",
+      href: "#",
     },
   ]
 

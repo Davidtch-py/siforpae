@@ -72,6 +72,10 @@ export default function Dashboard() {
         ]
       : []),
   ]
+  const handleLogOut=()=>{
+    setIsAdmin(false);
+    localStorage.removeItem('isAdmin');
+  }
 
   // Use the tour hook
   const { isTourOpen, startTour, closeTour, completeTour, resetTour } = useTour("dashboard", tourSteps)
@@ -246,9 +250,9 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className="flex justify-center mb-4 relative">
-          <Link href="/">
-            <button className="border-2 border-[#c9a55a] dark:border-[#d9b56a] text-[#c9a55a] dark:text-[#d9b56a] py-2 px-12 rounded-md text-lg font-medium hover:bg-[#c9a55a] dark:hover:bg-gray-800 transition-colors hover:text-white dark:hover:text-[#d9b56a]">
+        <div className="flex justify-center mb-4 relative" onClick={handleLogOut}>
+          <Link href="/" >
+            <button  className="border-2 border-[#c9a55a] dark:border-[#d9b56a] text-[#c9a55a] dark:text-[#d9b56a] py-2 px-12 rounded-md text-lg font-medium hover:bg-[#c9a55a] dark:hover:bg-gray-800 transition-colors hover:text-white dark:hover:text-[#d9b56a]">
               Cerrar Sesion
             </button>
           </Link>
