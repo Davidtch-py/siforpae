@@ -22,15 +22,18 @@ export default function AdminCuentasPage() {
   const sidebarItems = [
     {
       label: "Crear Cuenta",
-      href: "/admin/cuentas/crear",
+      href: "#",
+      section: "crear",
     },
     {
       label: "Modificar Cuenta",
-      href: "/admin/cuentas/modificar",
+      href: "#",
+      section: "modificar",
     },
     {
       label: "Inactivar/Activar Cuenta",
-      href: "/admin/cuentas/estado",
+      href: "#",
+      section: "estado",
     },
   ]
 
@@ -49,7 +52,7 @@ export default function AdminCuentasPage() {
         </Link>
       </div>
 
-      <Sidebar activeSection="Administrar cuentas" items={sidebarItems} />
+      <Sidebar activeSection="Administrar cuentas" items={sidebarItems} onClickOption={setActiveTab}/>
 
       <div className="flex-1 p-6 md:ml-[200px] max-w-4xl mx-auto">
         <h1 className="text-xl font-semibold text-center mb-6 text-black dark:text-white">Administrar Cuentas</h1>

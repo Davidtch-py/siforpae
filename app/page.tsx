@@ -128,17 +128,17 @@ export default function LoginPage() {
                 <form onSubmit={handleRecoverPassword} className="space-y-6">
                   <div>
                     <label htmlFor="recovery-email" className="block text-sm font-medium text-gray-700 mb-1">
-                      Correo electrónico
+                      Nombre de usuario
                     </label>
                     <input
                       id="recovery-email"
                       name="recovery-email"
-                      type="email"
+                      type="text"
                       required
                       value={recoveryEmail}
                       onChange={(e) => setRecoveryEmail(e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3e6b47] text-black dark:text-white"
-                      placeholder="Ingrese su correo electrónico"
+                      placeholder="Ingrese su nombre de usuario"
                     />
                   </div>
 
