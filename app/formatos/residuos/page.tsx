@@ -12,6 +12,8 @@ import { ObservationsModal } from "@/components/ui/observations-modal"
 import { Checkbox } from "@/components/ui/checkbox"
 import { HelpTooltip } from "@/components/ui/help-tooltip"
 import { useFormStorage } from "@/hooks/use-form-storage"
+import { supabase } from "@/lib/supabase"
+import { TIPO_FORMATO } from "@/lib/constants"
 
 interface ResiduosFormData {
   institucion: string
@@ -35,6 +37,17 @@ export default function ResiduosPage() {
   const router = useRouter()
   const calendarRef = useRef<HTMLDivElement>(null)
   
+  // Establecer la fecha por defecto en Colombia
+  const defaultDate = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Bogota" }))
+  const [selectedDate, setSelectedDate] = useState<Date | null>(defaultDate)
+
+  useEffect(() => {
+    // Establecer la fecha inicial en el formato
+    if (defaultDate) {
+      updateField("fecha", defaultDate.toLocaleDateString("es-ES"))
+    }
+  }, [])
+
   // Define los pasos del tour
   const tourSteps = [
     {
@@ -67,7 +80,6 @@ export default function ResiduosPage() {
   const { isTourOpen, startTour, closeTour, completeTour } = useTour("residuos", tourSteps)
 
   const [showCalendar, setShowCalendar] = useState(false)
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [showObservationsModal, setShowObservationsModal] = useState(false)
   const [popup, setPopup] = useState<{ show: boolean; type: "success" | "error"; message: string }>({
     show: false,
@@ -171,12 +183,108 @@ export default function ResiduosPage() {
     router.push("/dashboard")
   }
 
-  const handleSubmit = () => {
-    setPopup({
-      show: true,
-      type: "success",
-      message: "Formulario guardado correctamente",
-    })
+  const handleSubmit = async () => {
+    try {
+      // Validar campos requeridos
+      if (!formData.institucion || !formData.sede || !formData.zone || !formData.fecha) {
+        setPopup({
+          show: true,
+          type: "error",
+          message: "Por favor complete todos los campos requeridos",
+        })
+        return
+      }
+
+      // Verificar la autenticación actual
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError) {
+        throw new Error("Error de autenticación: " + authError.message)
+      }
+
+      if (!user) {
+        throw new Error("Usuario no autenticado")
+      }
+
+      // Obtener el usuario de la tabla usuarios
+      const { data: userData, error: userError } = await supabase
+        .from('usuarios')
+        .select('usuario_id, estado')
+        .eq('auth_uid', user.id)
+        .single()
+
+      if (userError) {
+        throw new Error("Error al obtener el usuario: " + userError.message)
+      }
+
+      if (!userData) {
+        throw new Error("No se encontró el usuario en la base de datos")
+      }
+
+      // Verificar si el usuario está activo
+      if (userData.estado !== 'activo') {
+        throw new Error("Tu cuenta no está activa. Contacta al administrador.")
+      }
+
+      // Crear el objeto de datos para guardar
+      const formatoData = {
+        tipo_formato_id: TIPO_FORMATO.RESIDUOS,
+        usuario_id: userData.usuario_id,
+        fecha_diligenciamiento: new Date().toISOString(),
+        estado_diligenciamiento_id: 1,
+        datos_formato: {
+          institucion: formData.institucion,
+          sede: formData.sede,
+          zona: formData.zone,
+          dias_seleccionados: formData.selectedDays,
+          frecuencia: formData.selectedFrequency,
+          empresa: formData.empresa,
+          linea_atencion: formData.linea,
+          fecha: formData.fecha,
+          firma: formData.signatureData,
+          observaciones: formData.observations,
+          residuos: {
+            organicos: formData.checkboxes.residuosOrganicos,
+            inorganicos: formData.checkboxes.residuosInorganicos,
+            sanitarios: formData.checkboxes.residuosSanitarios,
+          }
+        }
+      }
+
+      console.log("Usuario autenticado:", user.id)
+      console.log("ID de usuario en la base de datos:", userData.usuario_id)
+      console.log("Guardando formato:", formatoData)
+
+      // Intentar guardar en la base de datos
+      const { error: saveError } = await supabase
+        .from('formatosdiligenciados')
+        .insert([formatoData])
+        .select()
+
+      if (saveError) {
+        console.error("Error detallado al guardar:", saveError)
+        throw new Error("Error al guardar en la base de datos: " + saveError.message)
+      }
+
+      setPopup({
+        show: true,
+        type: "success",
+        message: "Formato guardado exitosamente",
+      })
+
+      // Esperar un momento antes de redirigir
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 2000)
+
+    } catch (error) {
+      console.error("Error completo:", error)
+      setPopup({
+        show: true,
+        type: "error",
+        message: error instanceof Error ? error.message : "Error desconocido al guardar el formato"
+      })
+    }
   }
 
   // Función para guardar el orden en localStorage
@@ -376,7 +484,6 @@ export default function ResiduosPage() {
                     type="text"
                     placeholder="FECHA"
                     value={formData.fecha}
-                    onChange={(e) => updateField("fecha", e.target.value)}
                     className="border-none outline-none w-full cursor-pointer bg-transparent text-black dark:text-white"
                     readOnly
                     onClick={() => setShowCalendar(true)}
@@ -387,9 +494,13 @@ export default function ResiduosPage() {
                 {showCalendar && (
                   <div className="absolute top-full left-0 mt-1 z-10" ref={calendarRef}>
                     <CalendarComponent
-                      value={selectedDate}
-                      onChange={handleDateChange}
-                      onClose={() => setShowCalendar(false)}
+                      mode="single"
+                      selected={selectedDate || undefined}
+                      onSelect={(date: Date | undefined) => {
+                        if (date) {
+                          handleDateChange(date)
+                        }
+                      }}
                     />
                   </div>
                 )}
@@ -500,6 +611,15 @@ export default function ResiduosPage() {
           </button>
         </div>
       </div>
+
+      {showObservationsModal && (
+        <ObservationsModal
+          isOpen={showObservationsModal}
+          onClose={() => setShowObservationsModal(false)}
+          value={formData.observations}
+          onChange={(value) => updateField("observations", value)}
+        />
+      )}
     </div>
   )
 }

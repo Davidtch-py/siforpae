@@ -295,8 +295,8 @@ function ResiduosForm() {
       <ObservationsModal
         isOpen={showObservationsModal}
         onClose={() => setShowObservationsModal(false)}
-        onSave={handleSaveObservations}
-        initialValue={observations}
+        value={observations}
+        onChange={(value) => setObservations(value)}
       />
 
       {showSignaturePad && (
@@ -459,9 +459,13 @@ function ResiduosForm() {
               {showCalendar && (
                 <div className="absolute top-full left-0 mt-1 z-10" ref={calendarRef}>
                   <CalendarComponent
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                    onClose={() => setShowCalendar(false)}
+                    mode="single"
+                    selected={selectedDate || undefined}
+                    onSelect={(date: Date | undefined) => {
+                      if (date) {
+                        handleDateChange(date)
+                      }
+                    }}
                   />
                 </div>
               )}

@@ -3,13 +3,47 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Settings, Menu, HelpCircle, X } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { TourGuide } from "@/components/ui/tour-guide"
 import { useTour } from "@/hooks/use-tour"
+import { signOut, getCurrentUser } from "@/lib/supabase"
 
 export default function AdminDashboard() {
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [userName, setUserName] = useState("Administrador")
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Cargar datos del usuario al montar el componente
+    const loadUserData = async () => {
+      try {
+        const user = await getCurrentUser()
+        if (user) {
+          setUserName(user.email || "Administrador")
+          
+          // Verificar si es admin
+          const isAdmin = user.app_metadata?.role === 'admin' || user.app_metadata?.role === 'administrador'
+          if (!isAdmin) {
+            console.log("Usuario no es administrador, redirigiendo...")
+            window.location.href = "/dashboard"
+            return
+          }
+        } else {
+          // Si no hay usuario, redirigir a la página principal
+          console.log("No hay sesión activa, redirigiendo...")
+          window.location.href = "/"
+          return
+        }
+      } catch (error) {
+        console.error("Error al obtener datos del usuario:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadUserData()
+  }, [])
 
   // Define tour steps
   const tourSteps = [
@@ -39,12 +73,34 @@ export default function AdminDashboard() {
       position: "right" as const,
     },
   ]
-  const handleLogOut=()=>{
-    localStorage.removeItem('isAdmin');
+  
+  // Función mejorada de cierre de sesión
+  const handleLogOut = async () => {
+    try {
+      setIsLoading(true)
+      console.log("Cerrando sesión...")
+      await signOut()
+      console.log("Sesión cerrada exitosamente")
+      // Usar window.location en lugar de router para una navegación limpia
+      window.location.href = "/"
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error)
+      // Si falla el cierre de sesión, intentar redirección de todos modos
+      window.location.href = "/"
+    }
   }
 
   // Use the tour hook
   const { isTourOpen, startTour, closeTour, completeTour } = useTour("admin-dashboard", tourSteps)
+
+  // Si todavía está cargando, mostrar indicador
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#f8f5e6] dark:bg-gray-900">
+        <div className="text-[#3e6b47] dark:text-[#4e8c57] text-xl">Cargando...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#f8f5e6] dark:bg-gray-900 p-4">
@@ -133,13 +189,15 @@ export default function AdminDashboard() {
               >
                 Opciones
               </Link>
-              <Link
-                href="/"
-                className="block p-2 hover:bg-[#d8d5c5] dark:hover:bg-gray-700 rounded-md text-[#c9a55a] dark:text-[#d9b56a]"
-                onClick={() => {setMobileMenuOpen(false); handleLogOut()}}
+              <button
+                className="w-full text-left p-2 hover:bg-[#d8d5c5] dark:hover:bg-gray-700 rounded-md text-[#c9a55a] dark:text-[#d9b56a]"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogOut();
+                }}
               >
                 Cerrar Sesión
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -158,7 +216,7 @@ export default function AdminDashboard() {
           </div>
           <div className="text-center flex-grow">
             <h1 className="text-4xl md:text-5xl font-bold text-[#3e6b47] dark:text-[#4e8c57]">Bienvenido</h1>
-            <h2 className="text-2xl md:text-3xl font-semibold text-[#4a4a4a] dark:text-gray-300">Administrador</h2>
+            <h2 className="text-2xl md:text-3xl font-semibold text-[#4a4a4a] dark:text-gray-300">{userName}</h2>
           </div>
           <div className="w-[80px] hidden md:block"></div> {/* Spacer for alignment */}
         </div>
@@ -207,11 +265,12 @@ export default function AdminDashboard() {
         </div>
 
         <div className="flex justify-center mb-4 relative">
-          <Link href="/">
-            <button className="border-2 border-[#c9a55a] dark:border-[#d9b56a] text-[#c9a55a] dark:text-[#d9b56a] py-2 px-12 rounded-md text-lg font-medium hover:bg-[#c9a55a] dark:hover:bg-gray-800 transition-colors hover:text-white dark:hover:text-[#d9b56a]">
-              Cerrar Sesion
-            </button>
-          </Link>
+          <button
+            onClick={handleLogOut}
+            className="border-2 border-[#c9a55a] dark:border-[#d9b56a] text-[#c9a55a] dark:text-[#d9b56a] py-2 px-12 rounded-md text-lg font-medium hover:bg-[#c9a55a] dark:hover:bg-gray-800 transition-colors hover:text-white dark:hover:text-[#d9b56a]"
+          >
+            Cerrar Sesión
+          </button>
           {/* Character image - desktop only */}
           <div className="hidden md:block absolute -right-48 top-1/2 transform -translate-y-1/2">
             <Image 

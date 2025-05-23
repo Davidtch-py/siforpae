@@ -2,6 +2,7 @@ import type React from "react"
 import "./globals.css"
 import type { Metadata } from "next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: "SIFORPAE",
@@ -17,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>{children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   )
