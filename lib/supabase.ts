@@ -1,9 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 import { Database } from './types'
 
-// Necesitarás reemplazar estas URL y ANON_KEY con tus propias credenciales de Supabase
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'tu_url_de_supabase'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'tu_clave_anonima_de_supabase'
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  throw new Error('NEXT_PUBLIC_SUPABASE_URL is not defined')
+}
+
+if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY is not defined')
+}
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 // Configuración mejorada para persistencia de sesión y manejo correcto de tokens
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
