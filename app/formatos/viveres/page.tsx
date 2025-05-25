@@ -13,6 +13,7 @@ import { useFormStorage } from "@/hooks/use-form-storage"
 import { supabase } from "@/lib/supabase"
 import { Calendar } from "@/components/ui/calendar"
 import { TIPO_FORMATO } from "@/lib/constants"
+import { getActualDate, getSidebarItems, INSTITUCION, SEDE } from "../formatos"
 
 interface ViveresFormData {
   institucion: string
@@ -39,9 +40,9 @@ export default function ViveresPage() {
   const [showBlur, setShowBlur] = useState(false)
   
   const { formData, updateField } = useFormStorage<ViveresFormData>("viveres-form", {
-    institucion: "",
-    sede: "",
-    fecha: "",
+    institucion: INSTITUCION,
+    sede: SEDE,
+    fecha: getActualDate(),
     signatureData: "",
     observations: "",
     fileUrl: ""
@@ -50,28 +51,7 @@ export default function ViveresPage() {
   const [sidebarItems, setSidebarItems] = useState(() => {
     // Intentar obtener el orden guardado del localStorage
     const savedItems = typeof window !== 'undefined' ? localStorage.getItem('sidebarOrder') : null
-    return savedItems ? JSON.parse(savedItems) : [
-      {
-        label: "Disposicion de Residuos Solidos en Comedores Escolares",
-        href: "/formatos/residuos",
-      },
-      {
-        label: "Limpieza en Restaurante Escolares",
-        href: "/formatos/limpieza",
-      },
-      {
-        label: "Remisión Entrega de Viveres En Comedores Escolares",
-        href: "/formatos/viveres",
-      },
-      {
-        label: "Entrega De Dotacion",
-        href: "/formatos/dotacion",
-      },
-      {
-        label: "Entrada y Salida de Alimentos en los Restaurantes Escolares",
-        href: "/formatos/alimentos",
-      },
-    ]
+    return savedItems ? JSON.parse(savedItems) : getSidebarItems()
   })
 
   // Define los pasos del tour

@@ -14,6 +14,7 @@ import { useFormStorage } from "@/hooks/use-form-storage"
 import { supabase } from "@/lib/supabase"
 import { TIPO_FORMATO } from "@/lib/constants"
 import { Popup } from "@/components/ui/popup"
+import { getActualDate, getSidebarItems } from "../formatos"
 
 interface LimpiezaFormData {
   institucion: string
@@ -33,6 +34,7 @@ export default function LimpiezaPage() {
   const [showObservationsModal, setShowObservationsModal] = useState(false)
   const [isOrdering, setIsOrdering] = useState(false)
   const [showBlur, setShowBlur] = useState(false)
+  const defaultDate = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Bogota" }))
   const [popup, setPopup] = useState<{ show: boolean; type: "success" | "error"; message: string }>({
     show: false,
     type: "success",
@@ -41,8 +43,8 @@ export default function LimpiezaPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   const { formData, updateField } = useFormStorage<LimpiezaFormData>("limpieza-form", {
-    institucion: "",
-    fecha: "",
+    institucion: "ENSLAP",
+    fecha: getActualDate(),
     areaEntrega: false,
     paredes: false,
     ventanas: false,
@@ -52,28 +54,7 @@ export default function LimpiezaPage() {
     observations: ""
   })
 
-  const defaultItems = [
-      {
-        label: "Disposicion de Residuos Solidos en Comedores Escolares",
-        href: "/formatos/residuos",
-      },
-      {
-        label: "Limpieza en Restaurante Escolares",
-        href: "/formatos/limpieza",
-      },
-      {
-        label: "Remisión Entrega de Viveres En Comedores Escolares",
-        href: "/formatos/viveres",
-      },
-      {
-        label: "Entrega De Dotacion",
-        href: "/formatos/dotacion",
-      },
-      {
-        label: "Entrada y Salida de Alimentos en los Restaurantes Escolares",
-        href: "/formatos/alimentos",
-      },
-    ]
+  const defaultItems = getSidebarItems()
 
   const [sidebarItems, setSidebarItems] = useState(defaultItems)
 

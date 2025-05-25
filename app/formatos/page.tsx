@@ -12,6 +12,7 @@ import { SignaturePad } from "@/components/ui/signature-pad"
 import { TourGuide } from "@/components/ui/tour-guide"
 import { useTour } from "@/hooks/use-tour"
 import Link from "next/link"
+import { getSidebarItems, INSTITUCION,SEDE } from "./formatos"
 
 // Definir el tipo para los items del sidebar
 interface SidebarItem {
@@ -28,28 +29,7 @@ export default function FormatosPage() {
   const [sidebarItems, setSidebarItems] = useState<SidebarItem[]>(() => {
     // Intentar obtener el orden guardado del localStorage
     const savedItems = typeof window !== 'undefined' ? localStorage.getItem('sidebarOrder') : null
-    return savedItems ? JSON.parse(savedItems) : [
-      {
-        label: "Disposicion de Residuos Solidos en Comedores Escolares",
-        href: "/formatos/residuos",
-      },
-      {
-        label: "Limpieza en Restaurante Escolares",
-        href: "/formatos/limpieza",
-      },
-      {
-        label: "Remisión Entrega de Viveres En Comedores Escolares",
-        href: "/formatos/viveres",
-      },
-      {
-        label: "Entrega De Dotacion",
-        href: "/formatos/dotacion",
-      },
-      {
-        label: "Entrada y Salida de Alimentos en los Restaurantes Escolares",
-        href: "/formatos/alimentos",
-      },
-    ]
+    return savedItems ? JSON.parse(savedItems) : getSidebarItems()
   })
 
   // Efecto para redirigir al primer formato cuando se carga la página
@@ -181,8 +161,8 @@ function ResiduosForm() {
   const [selectedDays, setSelectedDays] = useState<number[]>([])
   const [selectedFrequency, setSelectedFrequency] = useState<number | null>(null)
   const [zone, setZone] = useState("")
-  const [institucion, setInstitucion] = useState("")
-  const [sede, setSede] = useState("")
+  const [institucion, setInstitucion] = useState(INSTITUCION)
+  const [sede, setSede] = useState(SEDE)
   const [empresa, setEmpresa] = useState("URBASERV TUNJA S.A")
   const [linea, setLinea] = useState("+57 XXXXXXXXXX")
   const [fecha, setFecha] = useState("")
