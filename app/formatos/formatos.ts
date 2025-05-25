@@ -1,3 +1,8 @@
+
+export const INSTITUCION="ENSLAP"
+export const SEDE="Restaurante central"
+
+
 const SIDEBAR_ITEMS = [
       {
         label: "Disposicion de Residuos Solidos en Comedores Escolares",
@@ -24,6 +29,14 @@ const SIDEBAR_ITEMS = [
         href: "/formatos/almacenamiento",
       }
 ]
+
+export const getActualDate=()=>{
+  const date = new Date()
+  const day = date.getDate()
+  const month = date.getMonth() + 1
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
 
 export function getSidebarItems() {
   return structuredClone(SIDEBAR_ITEMS)

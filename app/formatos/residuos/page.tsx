@@ -14,13 +14,13 @@ import { HelpTooltip } from "@/components/ui/help-tooltip"
 import { useFormStorage } from "@/hooks/use-form-storage"
 import { supabase } from "@/lib/supabase"
 import { TIPO_FORMATO } from "@/lib/constants"
-import { getSidebarItems } from "../formatos"
+import { getActualDate, getSidebarItems, INSTITUCION ,SEDE} from "../formatos"
 
 interface ResiduosFormData {
   institucion: string
   sede: string
   zone: string
-  selectedDays: number[]
+  selectedDay: number
   selectedFrequency: number | null
   empresa: string
   linea: string
@@ -39,13 +39,12 @@ export default function ResiduosPage() {
   const calendarRef = useRef<HTMLDivElement>(null)
   
   // Establecer la fecha por defecto en Colombia
-  const defaultDate = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Bogota" }))
-  const [selectedDate, setSelectedDate] = useState<Date | null>(defaultDate)
+  const defaultDate = getActualDate()
 
   useEffect(() => {
     // Establecer la fecha inicial en el formato
     if (defaultDate) {
-      updateField("fecha", defaultDate.toLocaleDateString("es-ES"))
+      updateField("fecha", defaultDate)
     }
   }, [])
 
@@ -92,10 +91,10 @@ export default function ResiduosPage() {
   const [showBlur, setShowBlur] = useState(false)
 
   const { formData, updateField } = useFormStorage<ResiduosFormData>("residuos-form", {
-    institucion: "",
-    sede: "",
+    institucion: INSTITUCION,
+    sede: SEDE,
     zone: "",
-    selectedDays: [],
+    selectedDay: new Date().getDay()-1,
     selectedFrequency: null,
     empresa: "URBASERV TUNJA S.A",
     linea: "+57 XXXXXXXXXX",
@@ -130,28 +129,15 @@ export default function ResiduosPage() {
     })
   }
 
-  const handleDateChange = (date: Date) => {
-    setSelectedDate(date)
-    updateField("fecha", date.toLocaleDateString("es-ES"))
-    setShowCalendar(false)
-  }
-
   const toggleDay = (day: number) => {
-    const currentDays = [...formData.selectedDays]
-    if (currentDays.includes(day)) {
-      updateField(
-        "selectedDays",
-        currentDays.filter((d) => d !== day),
-      )
-    } else {
-      updateField("selectedDays", [...currentDays, day])
-    }
+    console.log(formData.selectedDay);
+    updateField("selectedDay", day)
   }
 
   const toggleFrequency = (frequency: number) => {
     updateField("selectedFrequency", formData.selectedFrequency === frequency ? null : frequency)
   }
-
+  
   const handleCheckboxChange = (name: keyof typeof formData.checkboxes, checked: boolean) => {
     updateField("checkboxes", {
       ...formData.checkboxes,
@@ -216,7 +202,7 @@ export default function ResiduosPage() {
           institucion: formData.institucion,
           sede: formData.sede,
           zona: formData.zone,
-          dias_seleccionados: formData.selectedDays,
+          dia_seleccionado: formData.selectedDay,
           frecuencia: formData.selectedFrequency,
           empresa: formData.empresa,
           linea_atencion: formData.linea,
@@ -389,13 +375,13 @@ export default function ResiduosPage() {
                   <button
                     key={index}
                     className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      formData.selectedDays.includes(index)
+                      formData.selectedDay=== index
                         ? "bg-[#3e6b47] dark:bg-[#4e8c57] text-white"
                         : "bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-700"
                     }`}
-                    onClick={() => toggleDay(index)}
+                    onClick={() => toggleDay( index)}
                     aria-label={`Seleccionar día ${day}`}
-                    aria-pressed={formData.selectedDays.includes(index)}
+                    aria-pressed={formData.selectedDay=== index}
                   >
                     {day}
                   </button>
@@ -404,7 +390,7 @@ export default function ResiduosPage() {
             </div>
 
             <div>
-              <p className="text-center mb-2 text-black dark:text-white">Frecuencia</p>
+              <p className="text-center mb-2 text-black dark:text-white">FRECUENCIA</p>
               <div className="flex flex-wrap space-x-2">
                 {[1, 2, 3, 4, 5].map((num) => (
                   <button
@@ -470,20 +456,6 @@ export default function ResiduosPage() {
                     aria-label="Fecha seleccionada"
                   />
                 </div>
-
-                {showCalendar && (
-                  <div className="absolute top-full left-0 mt-1 z-10" ref={calendarRef}>
-                    <CalendarComponent
-                      mode="single"
-                      selected={selectedDate || undefined}
-                      onSelect={(date: Date | undefined) => {
-                        if (date) {
-                          handleDateChange(date)
-                        }
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             </div>
 

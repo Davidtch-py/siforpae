@@ -1,10 +1,10 @@
 "use client"
 import { useEffect, useState } from "react"
 import Sidebar from "@/components/sidebar"
-import { useRouter } from "next/navigation"
 import { HelpTooltip } from "@/components/ui/help-tooltip"
 import { supabase } from "@/lib/supabase"
 import { getSidebarItems } from "../formatos"
+import { Popup } from "@/components/ui/popup"
 
 interface FormatInterface{
   nombre_usuario: string,
@@ -14,7 +14,6 @@ interface FormatInterface{
 }
 
 export default function AlmacenamientoPage() {
-  const router = useRouter()
   const [popup, setPopup] = useState<{ show: boolean; type: "success" | "error"; message: string }>({
     show: false,
     type: "success",
@@ -22,7 +21,6 @@ export default function AlmacenamientoPage() {
   })
   const [isOrdering, setIsOrdering] = useState(false)
   const [showBlur, setShowBlur] = useState(false)
-  const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [actualFormat, setActualFormat] = useState(-1)
   const [formatList, setFormatList] = useState<FormatInterface[]>([])
 
@@ -63,60 +61,12 @@ export default function AlmacenamientoPage() {
 
   const [sidebarItems, setSidebarItems] = useState(defaultItems)
 
-  const handleSubmit = async () => {
-    try {
-      // Verificar la autenticación actual
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
-      if (authError) {
-        throw new Error("Error de autenticación: " + authError.message)
-      }
-
-      if (!user) {
-        throw new Error("Usuario no autenticado")
-      }
-
-      // Obtener el usuario de la tabla usuarios
-      const { data: userData, error: userError } = await supabase
-        .from('usuarios')
-        .select('usuario_id, estado')
-        .eq('auth_uid', user.id)
-        .single()
-
-      if (userError) {
-        throw new Error("Error al obtener el usuario: " + userError.message)
-      }
-
-      if (!userData) {
-        throw new Error("No se encontró el usuario en la base de datos")
-      }
-
-      // Verificar si el usuario está activo
-      if (userData.estado !== 'activo') {
-        throw new Error("Tu cuenta no está activa. Contacta al administrador.")
-      }
-
-      setPopup({
-        show: true,
-        type: "success",
-        message: "Formato guardado exitosamente"
-      })
-
-      setTimeout(() => {
-        router.push("/dashboard")
-      }, 2000)
-    } catch (error) {
-      console.error("Error completo:", error)
-      setPopup({
-        show: true,
-        type: "error",
-        message: error instanceof Error ? error.message : "Error desconocido al guardar el formato"
-      })
-    }
-  }
 
   return (
     <div className="flex min-h-screen bg-[#f8f5e6] dark:bg-gray-900">
+      {popup.show && (
+              <Popup type={popup.type} message={popup.message} onClose={() => setPopup({ ...popup, show: false })} />
+            )}
       <Sidebar 
         activeSection="Formatos" 
         items={sidebarItems}

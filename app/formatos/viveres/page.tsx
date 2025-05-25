@@ -13,7 +13,7 @@ import { useFormStorage } from "@/hooks/use-form-storage"
 import { supabase } from "@/lib/supabase"
 import { Calendar } from "@/components/ui/calendar"
 import { TIPO_FORMATO } from "@/lib/constants"
-import { getSidebarItems } from "../formatos"
+import { getActualDate, getSidebarItems, INSTITUCION, SEDE } from "../formatos"
 
 interface ViveresFormData {
   institucion: string
@@ -40,9 +40,9 @@ export default function ViveresPage() {
   const [showBlur, setShowBlur] = useState(false)
   
   const { formData, updateField } = useFormStorage<ViveresFormData>("viveres-form", {
-    institucion: "",
-    sede: "",
-    fecha: "",
+    institucion: INSTITUCION,
+    sede: SEDE,
+    fecha: getActualDate(),
     signatureData: "",
     observations: "",
     fileUrl: ""
